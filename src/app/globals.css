@@ -1,0 +1,192 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* KNK SKKIN — editorial luxury skin & wellness design system. All colors HSL. */
+
+@font-face {
+  font-family: 'Bomiro';
+  src: url('/fonts/Bomiro_Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Gilmer';
+  src: url('/fonts/Gilmer_Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    /* Warm paper */
+    --background: 35 33% 96%;
+    --foreground: 26 50% 28%; /* #6B4324 — KNK brown, replacing near-black default text */
+
+    --card: 35 30% 93%;
+    --card-foreground: 26 50% 28%;
+
+    --popover: 35 33% 96%;
+    --popover-foreground: 0 0% 4%;
+
+    /* Primary — KNK brown #6B4423 */
+    --primary: 26 50% 28%;
+    --primary-foreground: 35 40% 97%;
+
+    /* Secondary — black */
+    --secondary: 0 0% 0%;
+    --secondary-foreground: 35 33% 96%;
+
+    --muted: 35 28% 87%; /* #E7DFD4 — was #E6E1DB */
+    --muted-foreground: 26 12% 38%;
+
+    --accent: 33 45% 62%;
+    --accent-foreground: 0 0% 4%;
+
+    /* Gold scale */
+    --gold: 36 52% 62%;
+    --gold-deep: 30 45% 45%;
+    --gold-light: 40 62% 80%;
+
+    --destructive: 0 60% 42%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 30 16% 84%;
+    --input: 30 16% 84%;
+    --ring: 26 50% 28%;
+
+    --radius: 0.125rem;
+
+    --gradient-gold: linear-gradient(100deg, hsl(30 45% 45%), hsl(36 52% 62%) 35%, hsl(42 70% 84%) 55%, hsl(33 48% 58%) 80%, hsl(28 42% 42%));
+    --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
+
+    --sidebar-background: 35 33% 96%;
+    --sidebar-foreground: 0 0% 4%;
+    --sidebar-primary: 26 50% 28%;
+    --sidebar-primary-foreground: 35 40% 97%;
+    --sidebar-accent: 32 18% 88%;
+    --sidebar-accent-foreground: 0 0% 4%;
+    --sidebar-border: 30 16% 84%;
+    --sidebar-ring: 26 50% 28%;
+  }
+
+  .dark {
+    --background: 0 0% 4%;
+    --foreground: 35 30% 94%;
+    --card: 0 0% 7%;
+    --card-foreground: 35 30% 94%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 35 30% 94%;
+    --primary: 33 45% 62%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 35 30% 94%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 33 12% 65%;
+    --accent: 36 52% 62%;
+    --accent-foreground: 0 0% 4%;
+    --border: 0 0% 16%;
+    --input: 0 0% 16%;
+    --ring: 36 52% 62%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+
+  html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+  html.lenis, html.lenis body { height: auto; }
+  html.lenis.lenis-smooth { scroll-behavior: auto; }
+
+  html.custom-cursor,
+  html.custom-cursor a,
+  html.custom-cursor button {
+    cursor: none;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Gilmer', system-ui, sans-serif;
+    font-feature-settings: "kern";
+  }
+
+  h1, h2, h3, h4 { font-family: 'Bomiro', 'Gilmer', serif; font-weight: 400; }
+
+  ::selection { background: hsl(var(--gold) / 0.35); }
+
+  :focus-visible { outline: 1px solid hsl(var(--gold)); outline-offset: 3px; }
+}
+
+@layer components {
+  .display {
+    font-family: 'Bomiro', serif;
+    @apply leading-[0.92] tracking-[-0.01em];
+  }
+
+  .label-xs {
+    font-family: 'Gilmer', sans-serif;
+    @apply text-[0.625rem] sm:text-[14px] uppercase tracking-[0.28em] sm:tracking-[0.22em];
+  }
+
+  .text-gold {
+    background-image: var(--gradient-gold);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .bg-gold-gradient { background-image: var(--gradient-gold); }
+
+  .rule { @apply h-px w-full bg-border; }
+
+  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+
+  .link-line {
+    @apply relative inline-block;
+  }
+  .link-line::after {
+    content: '';
+    @apply absolute -bottom-0.5 left-0 h-px w-full origin-right scale-x-0 bg-current transition-transform duration-500;
+    transition-timing-function: var(--ease-lux);
+  }
+  .link-line:hover::after { @apply origin-left scale-x-100; }
+
+  .btn-primary {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 0%, rgba(0, 0, 0, 0.05) 50%, transparent 100%);
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+  .btn-primary:hover::before {
+    transform: translateX(100%);
+  }
+  .btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@layer utilities {
+  .ease-lux { transition-timing-function: var(--ease-lux); }
+  .grain::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
