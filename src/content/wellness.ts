@@ -56,19 +56,19 @@ export const WELLNESS_GROUPS: WellnessGroup[] = [
       { type: "key", key: "body-contouring__pressotherapy" },
     ],
   },
-  {
-    slug: "body-wellness",
-    title: "Body Wellness",
-    entries: [
-      { type: "key", key: "weight-management__nutrition-lifestyle-guidance" },
-      {
-        type: "link",
-        name: "Weight Management",
-        to: "/treatments#weight-management",
-        note: "See the full Weight Management programme on the Treatments page.",
-      },
-    ],
-  },
+  // {
+  //   slug: "body-wellness",
+  //   title: "Body Wellness",
+  //   entries: [
+  //     { type: "key", key: "weight-management__nutrition-lifestyle-guidance" },
+  //     {
+  //       type: "link",
+  //       name: "Weight Management",
+  //       to: "/treatments#weight-management",
+  //       note: "See the full Weight Management programme on the Treatments page.",
+  //     },
+  //   ],
+  // },
   {
     slug: "body-contouring",
     title: "Body Contouring",
