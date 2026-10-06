@@ -9,7 +9,7 @@ import { EASE, Magnetic } from "./Reveal";
 
 /** Resolves a nav link to a router target, accounting for anchors that may need a cross-page "/#hash" jump. */
 const linkTarget = (link: NavLink, isHome: boolean) =>
-  link.kind === "route" ? link.to : isHome ? link.hash : `/${link.hash}`;
+  link.kind === "route" ? link.to : link.kind === "anchor" ? (isHome ? link.hash : `/${link.hash}`) : "#";
 
 const Navigation = () => {
   const pathname = usePathname();
@@ -17,6 +17,7 @@ const Navigation = () => {
 
   const [scrolled, setScrolled] = useState(!isHome);
   const [open, setOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [active, setActive] = useState<string>("");
   const [hidden, setHidden] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -64,8 +65,12 @@ const Navigation = () => {
     };
   }, [open]);
 
-  const isActive = (link: NavLink) =>
-    link.kind === "route" ? pathname === link.to : isHome && active === link.hash;
+  const isActive = (link: NavLink) => {
+    if (link.kind === "route") return pathname === link.to;
+    if (link.kind === "anchor") return isHome && active === link.hash;
+    if (link.kind === "dropdown") return link.items.some((item) => pathname === item.to);
+    return false;
+  };
 
   // The consultation form is now embedded on every page, so this is always a same-page anchor.
   const bookHref = BOOK_CONSULTATION_HASH;
@@ -113,24 +118,83 @@ const Navigation = () => {
             </Link>
 
             <ul className="hidden items-center gap-8 lg:flex">
-              {NAV_LINKS.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={linkTarget(link, isHome)}
-                    className={`label-xs link-line transition-colors duration-500 ${
-                      scrolled
-                        ? isActive(link)
-                          ? "text-primary"
-                          : "text-foreground/70 hover:text-primary"
-                        : isActive(link)
-                          ? "text-gold-light"
-                          : "text-background/75 hover:text-background"
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+              {NAV_LINKS.map((link) => {
+                if (link.kind === "dropdown") {
+                  return (
+                    <li
+                      key={link.label}
+                      className="relative group"
+                      onMouseEnter={() => setDropdownOpen(true)}
+                      onMouseLeave={() => setDropdownOpen(false)}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setDropdownOpen((prev) => !prev)}
+                        aria-expanded={dropdownOpen}
+                        className={`label-xs flex items-center gap-1 transition-colors duration-500 ${
+                          scrolled
+                            ? isActive(link)
+                              ? "text-primary"
+                              : "text-foreground/70 hover:text-primary group-hover:text-primary"
+                            : isActive(link)
+                              ? "text-gold-light"
+                              : "text-background/75 hover:text-background group-hover:text-background"
+                        }`}
+                      >
+                        {link.label}
+                        <span className="text-[9px] leading-none transition-transform duration-200">
+                          ▾
+                        </span>
+                      </button>
+
+                      <div
+                        className={`absolute left-0 top-full mt-2 min-w-[170px] rounded-sm bg-white py-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.12)] border border-[#e8ded4] z-50 overflow-hidden transition-all duration-200 ${
+                          dropdownOpen
+                            ? "opacity-100 visible translate-y-0 pointer-events-auto"
+                            : "opacity-0 invisible translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:pointer-events-auto"
+                        }`}
+                      >
+                        {link.items.map((item) => {
+                          const isItemActive = pathname === item.to;
+                          return (
+                            <Link
+                              key={item.to}
+                              href={item.to}
+                              onClick={() => setDropdownOpen(false)}
+                              className={`block px-4 py-2.5 text-sm font-sans tracking-wide text-left transition-colors duration-200 ${
+                                isItemActive
+                                  ? "bg-[#d4c0ab] text-white"
+                                  : "text-[#2b2520] hover:bg-[#d4c0ab] hover:text-white"
+                              }`}
+                            >
+                              {item.label}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </li>
+                  );
+                }
+
+                return (
+                  <li key={link.label}>
+                    <Link
+                      href={linkTarget(link, isHome)}
+                      className={`label-xs link-line transition-colors duration-500 ${
+                        scrolled
+                          ? isActive(link)
+                            ? "text-primary"
+                            : "text-foreground/70 hover:text-primary"
+                          : isActive(link)
+                            ? "text-gold-light"
+                            : "text-background/75 hover:text-background"
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
 
             <div className="flex items-center gap-4">
@@ -189,23 +253,58 @@ const Navigation = () => {
               </button>
             </div>
 
-            <ul className="flex flex-1 flex-col justify-center gap-2 px-6">
-              {NAV_LINKS.map((link, i) => (
-                <motion.li
-                  key={link.label}
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.15 + i * 0.06, ease: EASE }}
-                >
-                  <Link
-                    href={linkTarget(link, isHome)}
-                    onClick={() => setOpen(false)}
-                    className="display block py-3 text-4xl uppercase text-secondary-foreground/90"
+            <ul className="flex flex-1 flex-col justify-center gap-2 px-6 overflow-y-auto">
+              {NAV_LINKS.map((link, i) => {
+                if (link.kind === "dropdown") {
+                  return (
+                    <motion.li
+                      key={link.label}
+                      initial={{ opacity: 0, y: 24 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 0.15 + i * 0.06, ease: EASE }}
+                    >
+                      <div className="py-2">
+                        <span className="display block py-1 text-3xl uppercase text-secondary-foreground/90">
+                          {link.label}
+                        </span>
+                        <div className="mt-1 flex flex-col gap-2 pl-4 border-l border-gold/40">
+                          {link.items.map((item) => (
+                            <Link
+                              key={item.to}
+                              href={item.to}
+                              onClick={() => setOpen(false)}
+                              className={`label-xs py-1 transition-colors duration-300 ${
+                                pathname === item.to
+                                  ? "text-gold-light"
+                                  : "text-secondary-foreground/70 hover:text-gold-light"
+                              }`}
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.li>
+                  );
+                }
+
+                return (
+                  <motion.li
+                    key={link.label}
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.15 + i * 0.06, ease: EASE }}
                   >
-                    {link.label}
-                  </Link>
-                </motion.li>
-              ))}
+                    <Link
+                      href={linkTarget(link, isHome)}
+                      onClick={() => setOpen(false)}
+                      className="display block py-3 text-4xl uppercase text-secondary-foreground/90"
+                    >
+                      {link.label}
+                    </Link>
+                  </motion.li>
+                );
+              })}
             </ul>
 
             <div className="px-6 pb-12">

@@ -21,7 +21,12 @@ export const CONTACT = {
 
 export type NavLink =
   | { label: string; kind: "route"; to: string }
-  | { label: string; kind: "anchor"; hash: string };
+  | { label: string; kind: "anchor"; hash: string }
+  | {
+      label: string;
+      kind: "dropdown";
+      items: { label: string; to: string }[];
+    };
 
 /** Header nav, in order. "Book a Consultation" is deliberately not in this list — it's rendered as the separate CTA slot. */
 export const NAV_LINKS: NavLink[] = [
@@ -29,6 +34,15 @@ export const NAV_LINKS: NavLink[] = [
   { label: "About", kind: "anchor", hash: "#our-vision" },
   { label: "Treatments", kind: "route", to: "/treatments" },
   { label: "Wellness", kind: "route", to: "/wellness" },
+  {
+    label: "Aesthetics",
+    kind: "dropdown",
+    items: [
+      { label: "Aesthetics", to: "/aesthetic" },
+      { label: "Microblading", to: "/microblading" },
+      { label: "Laser", to: "/laser-treatment" },
+    ],
+  },
 ];
 
 export const BOOK_CONSULTATION_HASH = "#book-consultation";
